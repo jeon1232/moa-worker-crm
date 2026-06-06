@@ -1,0 +1,18 @@
+{
+  "apphosting": [
+    {
+      "backendId": "moa-worker-crm",
+      "rootDir": ".",
+      "ignore": [
+        "node_modules",
+        ".git",
+        ".next",
+        ".env",
+        ".env.local",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.log"
+      ]
+    }
+  ]
+}
