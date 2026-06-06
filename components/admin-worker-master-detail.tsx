@@ -62,11 +62,11 @@ export function AdminWorkerMasterDetail({
   const deleteRequestsByCustomerId = new Map(deleteRequests.map((request) => [request.customer_id, request]));
 
   return (
-    <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
+    <section className="min-w-0 overflow-hidden rounded-lg border bg-card shadow-sm">
       <div className="border-b p-4 sm:p-5">
         <h2 className="text-lg font-semibold">협력자별 업무 관리</h2>
       </div>
-      <div className="grid min-h-[520px] lg:grid-cols-[300px_minmax(0,1fr)]">
+      <div className="grid min-h-[520px] lg:grid-cols-[minmax(240px,300px)_minmax(0,1fr)]">
         <aside className="border-b bg-muted/20 p-4 lg:border-b-0 lg:border-r">
           <label className="relative block">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -78,7 +78,7 @@ export function AdminWorkerMasterDetail({
             />
           </label>
 
-          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="mt-4 grid gap-2 md:grid-cols-2 lg:grid-cols-1">
             {filteredSummaries.map((worker) => (
               <button
                 key={worker.id}
@@ -168,10 +168,10 @@ function CustomerCard({
   const progress = getBusinessProgress(customer);
 
   return (
-    <article className="rounded-md border bg-background p-4">
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.9fr)]">
+    <article className="min-w-0 rounded-md border bg-background p-4">
+      <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_280px]">
         <div className="min-w-0 space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <InfoGroup label="고객">
               <div className="font-semibold">{customer.name}</div>
               <div>{customer.phone ?? "-"}</div>
@@ -209,7 +209,7 @@ function CustomerCard({
             </InfoGroup>
           </div>
 
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid gap-3 xl:grid-cols-2">
             <div className="rounded-md border bg-card p-3">
               <div className="mb-2 flex items-center gap-1 text-xs font-semibold text-muted-foreground">
                 <KeyRound className="h-3.5 w-3.5" />
@@ -414,7 +414,7 @@ function InfoGroup({ label, children }: { label: string; children: ReactNode }) 
 
 function Credential({ label, value }: { label: string; value: string | null }) {
   return (
-    <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-2 text-xs">
+    <div className="grid grid-cols-[88px_minmax(0,1fr)] gap-2 text-xs">
       <span className="text-muted-foreground">{label}</span>
       <span className="break-all font-mono text-foreground">{value || "-"}</span>
     </div>

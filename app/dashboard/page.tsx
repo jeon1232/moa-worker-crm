@@ -1,5 +1,4 @@
-import { Fragment } from "react";
-import { CheckCircle2, Clock3, KeyRound, MapPin, Plus, Save, Search, TabletSmartphone, Trash2 } from "lucide-react";
+import { CheckCircle2, KeyRound, MapPin, Plus, Save, Search, Trash2 } from "lucide-react";
 import { createCustomer, requestCustomerDelete, updateCustomerByWorker, updateProfileName } from "@/app/actions";
 import { AppShell } from "@/components/app-shell";
 import { FormSubmitButton } from "@/components/form-submit-button";
@@ -52,7 +51,7 @@ export default async function DashboardPage({
 
   return (
     <AppShell role={profile?.role ?? "worker"} name={profile?.name}>
-      <div className="grid gap-6 xl:grid-cols-[390px_1fr]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(320px,390px)_minmax(0,1fr)]">
         <section className="rounded-lg border bg-card p-5 shadow-sm">
           <h2 className="text-lg font-semibold">고객 등록</h2>
           <form action={createCustomer} className="mt-4 space-y-4">
@@ -137,86 +136,91 @@ export default async function DashboardPage({
                 ) : null}
               </form>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[1060px] text-sm">
-                <thead className="bg-muted text-left text-xs uppercase text-muted-foreground">
-                  <tr>
-                    <th className="px-4 py-3">고객</th>
-                    <th className="px-4 py-3">옵션</th>
-                    <th className="px-4 py-3">카카오 채널</th>
-                    <th className="px-4 py-3">태블릿</th>
-                    <th className="px-4 py-3">상태</th>
-                    <th className="px-4 py-3">삭제 요청</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visibleCustomers.map((customer) => {
-                    const deleteRequest = deleteRequestsByCustomerId.get(customer.id);
-                    const progress = getBusinessProgress(customer);
-
-                    return (
-                      <Fragment key={customer.id}>
-                        <tr className="border-t align-top">
-                          <td className="px-4 py-3">
-                            <div className="font-medium">{customer.name}</div>
-                            <div className="mt-1 text-muted-foreground">{customer.phone ?? "-"}</div>
-                            <div className="mt-1 text-muted-foreground">사업자번호 {customer.business_no ?? "-"}</div>
-                            <div className="mt-2 flex items-start gap-1 text-xs text-muted-foreground">
-                              <Clock3 className="mt-0.5 h-3.5 w-3.5" />
-                              제출일 {formatDateTime(customer.created_at)}
-                            </div>
-                            <div className="mt-1 flex items-start gap-1 text-xs text-muted-foreground">
-                              <MapPin className="mt-0.5 h-3.5 w-3.5" />
-                              {customer.address ?? "주소 미입력"}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">{formatOptions(customer)}</td>
-                          <td className="px-4 py-3">
-                            <ProgressBadge progress={progress} />
-                          </td>
-                          <td className="px-4 py-3">
-                            {customer.needs_tablet ? (
-                              <span className="inline-flex items-center gap-1">
-                                <TabletSmartphone className="h-4 w-4 text-primary" />
-                                {customer.tablet_shipped ? "발송됨" : "요청"}
-                              </span>
-                            ) : (
-                              "-"
-                            )}
-                          </td>
-                          <td className="px-4 py-3">{customer.status ?? "진행중"}</td>
-                          <td className="px-4 py-3">
-                            {!canManage ? (
-                              <DeleteRequestForm customerId={customer.id} request={deleteRequest} />
-                            ) : (
-                              "-"
-                            )}
-                          </td>
-                        </tr>
-                        {!canManage ? (
-                          <tr className="border-t bg-muted/20">
-                            <td className="px-4 py-4" colSpan={6}>
-                              <WorkerProgressForm customer={customer} progress={progress} />
-                            </td>
-                          </tr>
-                        ) : null}
-                      </Fragment>
-                    );
-                  })}
-                  {!visibleCustomers.length ? (
-                    <tr>
-                      <td className="px-4 py-8 text-center text-muted-foreground" colSpan={6}>
-                        {customerSearch ? "검색된 고객이 없습니다." : "등록된 고객이 없습니다."}
-                      </td>
-                    </tr>
-                  ) : null}
-                </tbody>
-              </table>
+            <div className="grid gap-3 p-4 sm:p-5">
+              {visibleCustomers.map((customer) => (
+                <CustomerListCard
+                  key={customer.id}
+                  canManage={canManage}
+                  customer={customer}
+                  deleteRequest={deleteRequestsByCustomerId.get(customer.id)}
+                />
+              ))}
+              {!visibleCustomers.length ? (
+                <div className="rounded-md border bg-background p-8 text-center text-sm text-muted-foreground">
+                  {customerSearch ? "검색된 고객이 없습니다." : "등록된 고객이 없습니다."}
+                </div>
+              ) : null}
             </div>
           </div>
         </section>
       </div>
     </AppShell>
+  );
+}
+
+function CustomerListCard({
+  canManage,
+  customer,
+  deleteRequest
+}: {
+  canManage: boolean;
+  customer: Customer;
+  deleteRequest?: CustomerDeleteRequest;
+}) {
+  const progress = getBusinessProgress(customer);
+
+  return (
+    <article className="rounded-md border bg-background p-4">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(220px,0.45fr)]">
+        <div className="min-w-0 space-y-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="break-words text-base font-semibold">{customer.name}</h3>
+              <div className="mt-1 text-sm text-muted-foreground">{customer.phone ?? "-"}</div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <ProgressBadge progress={progress} />
+              <span className="rounded-md bg-secondary px-2 py-1 text-xs font-medium">
+                {customer.status ?? "진행중"}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-4">
+            <CustomerFact label="사업자번호" value={customer.business_no ?? "-"} />
+            <CustomerFact label="옵션" value={formatOptions(customer)} />
+            <CustomerFact
+              label="태블릿"
+              value={customer.needs_tablet ? (customer.tablet_shipped ? "발송됨" : "발송 요청") : "-"}
+            />
+            <CustomerFact label="제출일" value={formatDateTime(customer.created_at)} />
+          </div>
+
+          <div className="flex items-start gap-1 text-sm text-muted-foreground">
+            <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <span className="break-words">{customer.address ?? "주소 미입력"}</span>
+          </div>
+
+          {!canManage ? <WorkerProgressForm customer={customer} progress={progress} /> : null}
+        </div>
+
+        <div className="min-w-0 rounded-md border bg-card p-3">
+          <div className="text-xs font-semibold text-muted-foreground">삭제 요청</div>
+          <div className="mt-2">
+            {!canManage ? <DeleteRequestForm customerId={customer.id} request={deleteRequest} /> : "-"}
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function CustomerFact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <div className="text-xs font-semibold text-muted-foreground">{label}</div>
+      <div className="mt-1 break-words text-muted-foreground">{value}</div>
+    </div>
   );
 }
 

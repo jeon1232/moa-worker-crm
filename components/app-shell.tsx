@@ -19,23 +19,23 @@ export function AppShell({
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-10 border-b bg-card/95 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-          <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
+        <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-3 px-4">
+          <Link href="/dashboard" className="flex min-w-0 items-center gap-2 font-semibold">
             <ClipboardList className="h-5 w-5 text-primary" />
-            Moa Worker
+            <span className="truncate">Moa Worker</span>
           </Link>
           <nav className="flex items-center gap-1">
             <Button asChild variant="ghost" size="sm">
               <Link href="/dashboard">
                 <LayoutDashboard className="h-4 w-4" />
-                업무
+                <span className="hidden sm:inline">업무</span>
               </Link>
             </Button>
             {hasAdminAccess(role) ? (
               <Button asChild variant="ghost" size="sm">
                 <Link href="/admin">
                   <ShieldCheck className="h-4 w-4" />
-                  관리자
+                  <span className="hidden sm:inline">관리자</span>
                 </Link>
               </Button>
             ) : null}
@@ -47,7 +47,7 @@ export function AppShell({
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-6">
+      <main className="mx-auto w-full max-w-7xl px-4 py-6">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-sm text-muted-foreground">{roleLabel}</p>
