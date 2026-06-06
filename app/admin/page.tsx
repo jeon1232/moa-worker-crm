@@ -29,6 +29,10 @@ const roleLabels: Record<Role, string> = {
 
 const ownerRoleOptions: Role[] = ["worker", "sub_admin", "admin"];
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
+
 export default async function AdminPage({
   searchParams
 }: {
