@@ -39,7 +39,7 @@ export default async function AdminPage({
     { data: customers },
     { data: allowedUsers },
     { data: accessRequests },
-    { data: customerDeleteRequests },
+    { data: customerDeleteRequests, error: customerDeleteRequestsError },
     { data: workers }
   ] = await Promise.all([
     supabase.from("customers").select("*, profiles(name)").order("created_at", { ascending: false }).returns<Customer[]>(),
@@ -79,7 +79,7 @@ export default async function AdminPage({
     <AppShell role={profile.role} name={profile?.name}>
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <Metric label="진행중" value={pending} />
-        <Metric label="태블릿 요청" value={tabletRequests} />
+        <Metric label="태블릿 발송 요청" value={tabletRequests} />
         <Metric label="QR 청구 대기" value={qrBillingOpen} />
         <Metric label="청구 미완료" value={billingOpen} />
         <Metric label="권한/삭제 요청" value={requests.length + deleteRequests.length} />
@@ -87,6 +87,11 @@ export default async function AdminPage({
 
       {searchParams.message ? (
         <div className="mb-4 rounded-md border bg-card p-3 text-sm">{searchParams.message}</div>
+      ) : null}
+      {customerDeleteRequestsError ? (
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+          삭제 요청 상태를 불러오지 못했습니다: {customerDeleteRequestsError.message}
+        </div>
       ) : null}
 
       <details className="group mb-6 overflow-hidden rounded-lg border bg-card shadow-sm">

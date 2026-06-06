@@ -38,6 +38,7 @@ type WorkerSummary = {
   reportCount: number;
   recentCount: number;
   activeCount: number;
+  tabletRequestCount: number;
   deleteRequestCount: number;
 };
 
@@ -98,9 +99,10 @@ export function AdminWorkerMasterDetail({
                     </span>
                   ) : null}
                 </div>
-                <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                <div className="mt-2 grid grid-cols-4 gap-2 text-xs text-muted-foreground">
                   <span>최근 {worker.recentCount}</span>
                   <span>진행 {worker.activeCount}</span>
+                  <span>발송 {worker.tabletRequestCount}</span>
                   <span>전체 {worker.reportCount}</span>
                 </div>
               </button>
@@ -122,9 +124,10 @@ export function AdminWorkerMasterDetail({
               {selectedWorker ? <WorkerNameForm worker={selectedWorker} /> : null}
             </div>
             {selectedWorker ? (
-              <div className="grid grid-cols-3 gap-2 text-sm">
+              <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
                 <Stat label="진행중" value={selectedWorker.activeCount} />
                 <Stat label="최근" value={selectedWorker.recentCount} />
+                <Stat label="태블릿 발송" value={selectedWorker.tabletRequestCount} />
                 <Stat label="삭제요청" value={selectedWorker.deleteRequestCount} />
               </div>
             ) : null}
@@ -171,7 +174,7 @@ function CustomerCard({
     <article className="min-w-0 rounded-md border bg-background p-4">
       <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_280px]">
         <div className="min-w-0 space-y-4">
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
             <InfoGroup label="고객">
               <div className="font-semibold">{customer.name}</div>
               <div>{customer.phone ?? "-"}</div>
@@ -187,7 +190,7 @@ function CustomerCard({
                 <span>{customer.address ?? "주소 미입력"}</span>
               </div>
             </InfoGroup>
-            <InfoGroup label="옵션">
+            <InfoGroup label="선택 옵션">
               <div className="flex flex-wrap gap-1">
                 {formatOptions(customer).map((option) => (
                   <span key={option} className="rounded-md bg-secondary px-2 py-1 text-xs font-medium">
@@ -202,10 +205,12 @@ function CustomerCard({
               ) : null}
               {deleteRequest?.reason ? <div className="mt-1 break-words">사유: {deleteRequest.reason}</div> : null}
             </InfoGroup>
+            <InfoGroup label="기기 발송">
+              <div>{formatTabletShipping(customer)}</div>
+            </InfoGroup>
             <InfoGroup label="진행">
               <div className="rounded-md bg-secondary px-2 py-1 text-xs font-medium">{customer.status ?? "진행중"}</div>
               <div className="mt-2">카카오 채널: {progress}</div>
-              <div>태블릿 {customer.tablet_shipped ? "발송 완료" : customer.needs_tablet ? "발송 요청" : "-"}</div>
             </InfoGroup>
           </div>
 
@@ -366,6 +371,7 @@ function buildWorkerSummaries(
           return now - new Date(customer.created_at).getTime() <= sevenDays;
         }).length,
         activeCount: workerCustomers.filter((customer) => customer.status !== "완료").length,
+        tabletRequestCount: workerCustomers.filter((customer) => customer.needs_tablet && !customer.tablet_shipped).length,
         deleteRequestCount: workerCustomers.filter((customer) => pendingDeleteCustomerIds.has(customer.id)).length
       };
     })
@@ -379,6 +385,18 @@ function formatOptions(customer: Customer) {
   ].filter((option): option is string => Boolean(option));
 
   return options.length ? options : ["-"];
+}
+
+function formatTabletShipping(customer: Customer) {
+  if (customer.tablet_shipped) {
+    return "발송 완료";
+  }
+
+  if (customer.needs_tablet) {
+    return "발송 요청";
+  }
+
+  return "미요청";
 }
 
 function getBusinessProgress(customer: Customer): BusinessProgressStatus {

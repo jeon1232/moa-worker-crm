@@ -229,7 +229,7 @@ export async function createCustomer(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/dashboard?message=${encodeURIComponent(error.message)}`);
+    redirect(`/dashboard?message=${encodeURIComponent(`고객 등록 오류: ${error.message}`)}`);
   }
 
   revalidatePath("/dashboard");
@@ -259,7 +259,7 @@ export async function updateCustomerByWorker(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/dashboard?message=${encodeURIComponent(error.message)}`);
+    redirect(`/dashboard?message=${encodeURIComponent(`고객 진행 저장 오류: ${error.message}`)}`);
   }
 
   revalidatePath("/dashboard");
@@ -312,7 +312,7 @@ export async function requestCustomerDelete(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/dashboard?message=${encodeURIComponent(error.message)}`);
+    redirect(`/dashboard?message=${encodeURIComponent(`삭제 요청 저장 오류: ${error.message}`)}`);
   }
 
   revalidatePath("/dashboard");

@@ -37,7 +37,7 @@ export default async function DashboardPage({
           .returns<Customer[]>()
       : { data: null };
 
-  const { data: deleteRequests } = await supabase
+  const { data: deleteRequests, error: deleteRequestsError } = await supabase
     .from("customer_delete_requests")
     .select("*")
     .eq("status", "pending")
@@ -91,6 +91,11 @@ export default async function DashboardPage({
         <section className="space-y-4">
           {searchParams.message ? (
             <div className="rounded-md border bg-card p-3 text-sm">{searchParams.message}</div>
+          ) : null}
+          {deleteRequestsError ? (
+            <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+              삭제 요청 상태를 불러오지 못했습니다: {deleteRequestsError.message}
+            </div>
           ) : null}
 
           <div className="rounded-lg border bg-card p-5 shadow-sm">
@@ -188,11 +193,8 @@ function CustomerListCard({
 
           <div className="grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-4">
             <CustomerFact label="사업자번호" value={customer.business_no ?? "-"} />
-            <CustomerFact label="옵션" value={formatOptions(customer)} />
-            <CustomerFact
-              label="태블릿"
-              value={customer.needs_tablet ? (customer.tablet_shipped ? "발송됨" : "발송 요청") : "-"}
-            />
+            <CustomerFact label="선택 옵션" value={formatOptions(customer)} />
+            <CustomerFact label="기기 발송" value={formatTabletShipping(customer)} />
             <CustomerFact label="제출일" value={formatDateTime(customer.created_at)} />
           </div>
 
@@ -240,6 +242,7 @@ function filterCustomers(customers: Customer[], query: string) {
       customer.status,
       getBusinessProgress(customer),
       formatOptions(customer),
+      formatTabletShipping(customer),
       customer.kakao_business_id,
       customer.moa_solution_id
     ];
@@ -353,7 +356,7 @@ function DeleteRequestForm({
       <input
         name="reason"
         maxLength={500}
-        placeholder="사유 선택"
+        placeholder="삭제 사유"
         className="h-9 rounded-md border bg-background px-2 text-xs outline-none focus:ring-2 focus:ring-ring"
       />
       <Button type="submit" variant="outline" size="sm">
@@ -380,6 +383,18 @@ function formatOptions(customer: Customer) {
   ].filter(Boolean);
 
   return options.length ? options.join(" + ") : "-";
+}
+
+function formatTabletShipping(customer: Customer) {
+  if (customer.tablet_shipped) {
+    return "발송 완료";
+  }
+
+  if (customer.needs_tablet) {
+    return "발송 요청";
+  }
+
+  return "미요청";
 }
 
 function getBusinessProgress(customer: Customer): BusinessProgressStatus {

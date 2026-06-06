@@ -287,16 +287,18 @@ security definer
 set search_path = public
 as $$
 declare
-  file_paths text[];
+  file_paths text[] := array[]::text[];
 begin
   if not public.is_admin() then
     raise exception '관리자 권한이 필요합니다.';
   end if;
 
-  select coalesce(array_agg(file_path), array[]::text[])
-  into file_paths
-  from public.customer_documents
-  where customer_id = target_customer_id;
+  if to_regclass('public.customer_documents') is not null then
+    select coalesce(array_agg(file_path), array[]::text[])
+    into file_paths
+    from public.customer_documents
+    where customer_id = target_customer_id;
+  end if;
 
   delete from public.customers
   where id = target_customer_id;
