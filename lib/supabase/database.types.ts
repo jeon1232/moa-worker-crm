@@ -252,6 +252,10 @@ export type Database = {
           moa_id?: string | null;
           moa_password?: string | null;
           progress_status?: "진행중" | "카카오비즈니스 채널 개설 완료";
+          customer_name?: string | null;
+          phone_number?: string | null;
+          has_option_tablet?: boolean | null;
+          has_option_qr?: boolean | null;
         };
         Returns: void;
       };

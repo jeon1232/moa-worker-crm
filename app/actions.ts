@@ -29,11 +29,15 @@ const customerSchema = z.object({
 
 const workerProgressSchema = z.object({
   customer_id: z.string().uuid(),
+  name: z.string().trim().min(1, "고객명을 입력하세요."),
+  phone: optionalText,
   address: optionalText,
   kakao_business_id: optionalText,
   kakao_business_password: optionalText,
   moa_solution_id: optionalText,
   moa_solution_password: optionalText,
+  option_tablet: z.coerce.boolean().optional(),
+  option_qr: z.coerce.boolean().optional(),
   business_progress_status: z.enum(businessProgressOptions).default("진행중")
 });
 
@@ -240,13 +244,18 @@ export async function updateCustomerByWorker(formData: FormData) {
   const { supabase } = await requireUser();
   const values = workerProgressSchema.parse({
     customer_id: formData.get("customer_id"),
+    name: formData.get("name"),
+    phone: formData.get("phone"),
     address: formData.get("address"),
     kakao_business_id: formData.get("kakao_business_id"),
     kakao_business_password: formData.get("kakao_business_password"),
     moa_solution_id: formData.get("moa_solution_id"),
     moa_solution_password: formData.get("moa_solution_password"),
+    option_tablet: formData.has("option_tablet"),
+    option_qr: formData.has("option_qr"),
     business_progress_status: formData.get("business_progress_status")
   });
+  const phone = formatPhone(values.phone);
 
   const { error } = await supabase.rpc("update_customer_worker_progress", {
     target_customer_id: values.customer_id,
@@ -255,16 +264,20 @@ export async function updateCustomerByWorker(formData: FormData) {
     kakao_password: nullIfEmpty(values.kakao_business_password),
     moa_id: nullIfEmpty(values.moa_solution_id),
     moa_password: nullIfEmpty(values.moa_solution_password),
-    progress_status: values.business_progress_status
+    progress_status: values.business_progress_status,
+    customer_name: values.name,
+    phone_number: phone,
+    has_option_tablet: Boolean(values.option_tablet),
+    has_option_qr: Boolean(values.option_qr)
   });
 
   if (error) {
-    redirect(`/dashboard?message=${encodeURIComponent(`고객 진행 저장 오류: ${error.message}`)}`);
+    redirect(`/dashboard?message=${encodeURIComponent(`고객 정보 저장 오류: ${error.message}`)}`);
   }
 
   revalidatePath("/dashboard");
   revalidatePath("/admin");
-  redirectWithMessage("/dashboard", "고객 진행 정보를 저장했습니다.");
+  redirectWithMessage("/dashboard", "고객 정보를 저장했습니다.");
 }
 
 export async function updateCustomerByAdmin(formData: FormData) {

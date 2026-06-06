@@ -9,6 +9,7 @@ type MaskedInputProps = {
   label: string;
   kind: MaskKind;
   required?: boolean;
+  defaultValue?: string | null;
 };
 
 function digitsOnly(value: string, maxLength: number) {
@@ -47,8 +48,8 @@ function applyMask(value: string, kind: MaskKind) {
   return kind === "phone" ? formatPhone(value) : formatBusinessNo(value);
 }
 
-export function MaskedInput({ name, label, kind, required }: MaskedInputProps) {
-  const [value, setValue] = useState("");
+export function MaskedInput({ name, label, kind, required, defaultValue }: MaskedInputProps) {
+  const [value, setValue] = useState(() => applyMask(defaultValue ?? "", kind));
 
   return (
     <label className="block text-sm font-medium">

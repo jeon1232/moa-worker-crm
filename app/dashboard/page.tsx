@@ -289,6 +289,29 @@ function WorkerProgressForm({
       <input type="hidden" name="customer_id" value={customer.id} />
       <div className="flex items-center gap-2 text-sm font-semibold">
         <KeyRound className="h-4 w-4 text-primary" />
+        고객 정보 수정
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <EditField name="name" label="고객명" defaultValue={customer.name} />
+        <MaskedInput name="phone" label="연락처" kind="phone" defaultValue={customer.phone} />
+      </div>
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium">선택 옵션</legend>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <CheckInput
+            name="option_tablet"
+            label="태블릿"
+            defaultChecked={Boolean(customer.option_tablet || customer.selected_option === "tablet")}
+          />
+          <CheckInput
+            name="option_qr"
+            label="QR"
+            defaultChecked={Boolean(customer.option_qr || customer.selected_option === "qr")}
+          />
+        </div>
+      </fieldset>
+      <div className="flex items-center gap-2 text-sm font-semibold">
+        <KeyRound className="h-4 w-4 text-primary" />
         계정/카카오 채널 수정
       </div>
       <div className="grid gap-3 md:grid-cols-2">
@@ -389,10 +412,10 @@ function DeleteRequestForm({
   );
 }
 
-function CheckInput({ name, label }: { name: string; label: string }) {
+function CheckInput({ name, label, defaultChecked }: { name: string; label: string; defaultChecked?: boolean }) {
   return (
     <label className="flex items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm">
-      <input name={name} type="checkbox" value="true" className="h-4 w-4" />
+      <input name={name} type="checkbox" value="true" defaultChecked={defaultChecked} className="h-4 w-4" />
       {label}
     </label>
   );
