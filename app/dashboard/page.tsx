@@ -1,4 +1,4 @@
-import { CheckCircle2, KeyRound, MapPin, Plus, Save, Search, Trash2 } from "lucide-react";
+import { CheckCircle2, ChevronDown, KeyRound, MapPin, Plus, Save, Search, Trash2 } from "lucide-react";
 import { createCustomer, requestCustomerDelete, updateCustomerByWorker, updateProfileName } from "@/app/actions";
 import { AppShell } from "@/components/app-shell";
 import { FormSubmitButton } from "@/components/form-submit-button";
@@ -175,27 +175,38 @@ function CustomerListCard({
   const progress = getBusinessProgress(customer);
 
   return (
-    <article className="rounded-md border bg-background p-4">
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(220px,0.45fr)]">
-        <div className="min-w-0 space-y-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="min-w-0">
-              <h3 className="break-words text-base font-semibold">{customer.name}</h3>
-              <div className="mt-1 text-sm text-muted-foreground">{customer.phone ?? "-"}</div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <ProgressBadge progress={progress} />
-              <span className="rounded-md bg-secondary px-2 py-1 text-xs font-medium">
-                {customer.status ?? "진행중"}
+    <details className="group overflow-hidden rounded-md border bg-background">
+      <summary className="grid cursor-pointer list-none gap-3 p-4 outline-none transition-colors hover:bg-muted/30 focus-visible:ring-2 focus-visible:ring-ring sm:grid-cols-[minmax(0,1fr)_auto] [&::-webkit-details-marker]:hidden">
+        <div className="min-w-0 space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="min-w-0 break-words text-base font-semibold">{customer.name}</h3>
+            <ProgressBadge progress={progress} />
+            {deleteRequest ? (
+              <span className="shrink-0 rounded-md bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive">
+                삭제 요청됨
               </span>
-            </div>
+            ) : null}
           </div>
+          <div className="grid gap-2 text-sm sm:grid-cols-2 xl:grid-cols-4">
+            <SummaryFact label="연락처" value={customer.phone ?? "-"} />
+            <SummaryFact label="진행" value={customer.status ?? "진행중"} />
+            <SummaryFact label="선택 옵션" value={formatOptions(customer)} />
+            <SummaryFact label="기기 발송" value={formatTabletShipping(customer)} />
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-2 text-sm font-medium text-muted-foreground sm:justify-end">
+          <span>상세</span>
+          <ChevronDown className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180" />
+        </div>
+      </summary>
 
+      <div className="border-t p-4">
+        <div className="min-w-0 space-y-4">
           <div className="grid gap-3 text-sm md:grid-cols-2 xl:grid-cols-4">
             <CustomerFact label="사업자번호" value={customer.business_no ?? "-"} />
-            <CustomerFact label="선택 옵션" value={formatOptions(customer)} />
-            <CustomerFact label="기기 발송" value={formatTabletShipping(customer)} />
+            <CustomerFact label="카카오 채널" value={progress} />
             <CustomerFact label="제출일" value={formatDateTime(customer.created_at)} />
+            <CustomerFact label="삭제 요청" value={deleteRequest ? "요청됨" : "없음"} />
           </div>
 
           <div className="flex items-start gap-1 text-sm text-muted-foreground">
@@ -204,16 +215,18 @@ function CustomerListCard({
           </div>
 
           {!canManage ? <WorkerProgressForm customer={customer} progress={progress} /> : null}
-        </div>
 
-        <div className="min-w-0 rounded-md border bg-card p-3">
-          <div className="text-xs font-semibold text-muted-foreground">삭제 요청</div>
-          <div className="mt-2">
-            {!canManage ? <DeleteRequestForm customerId={customer.id} request={deleteRequest} /> : "-"}
-          </div>
+          {!canManage ? (
+            <div className="rounded-md border bg-card p-3">
+              <div className="text-xs font-semibold text-muted-foreground">삭제 요청</div>
+              <div className="mt-2">
+                <DeleteRequestForm customerId={customer.id} request={deleteRequest} />
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
-    </article>
+    </details>
   );
 }
 
@@ -222,6 +235,15 @@ function CustomerFact({ label, value }: { label: string; value: string }) {
     <div className="min-w-0">
       <div className="text-xs font-semibold text-muted-foreground">{label}</div>
       <div className="mt-1 break-words text-muted-foreground">{value}</div>
+    </div>
+  );
+}
+
+function SummaryFact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-md bg-muted/60 px-3 py-2">
+      <div className="text-xs font-medium text-muted-foreground">{label}</div>
+      <div className="mt-1 truncate text-sm text-foreground">{value}</div>
     </div>
   );
 }

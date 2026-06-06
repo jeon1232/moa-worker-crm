@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import {
   BadgeCheck,
   CalendarClock,
+  ChevronDown,
   KeyRound,
   MapPin,
   Search,
@@ -171,72 +172,79 @@ function CustomerCard({
   const progress = getBusinessProgress(customer);
 
   return (
-    <article className="min-w-0 rounded-md border bg-background p-4">
-      <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="min-w-0 space-y-4">
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-            <InfoGroup label="고객">
-              <div className="font-semibold">{customer.name}</div>
-              <div>{customer.phone ?? "-"}</div>
-              <div>사업자번호 {customer.business_no ?? "-"}</div>
-              <div className="mt-1 flex items-center gap-1">
-                <CalendarClock className="h-3.5 w-3.5" />
-                제출일 {formatDateTime(customer.created_at)}
-              </div>
-            </InfoGroup>
-            <InfoGroup label="주소">
-              <div className="flex items-start gap-1">
-                <MapPin className="mt-0.5 h-3.5 w-3.5" />
-                <span>{customer.address ?? "주소 미입력"}</span>
-              </div>
-            </InfoGroup>
-            <InfoGroup label="선택 옵션">
-              <div className="flex flex-wrap gap-1">
-                {formatOptions(customer).map((option) => (
-                  <span key={option} className="rounded-md bg-secondary px-2 py-1 text-xs font-medium">
-                    {option}
-                  </span>
-                ))}
-              </div>
-              {deleteRequest ? (
-                <div className="mt-2 rounded-md bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive">
-                  삭제 요청
-                </div>
-              ) : null}
-              {deleteRequest?.reason ? <div className="mt-1 break-words">사유: {deleteRequest.reason}</div> : null}
-            </InfoGroup>
-            <InfoGroup label="기기 발송">
-              <div>{formatTabletShipping(customer)}</div>
-            </InfoGroup>
-            <InfoGroup label="진행">
-              <div className="rounded-md bg-secondary px-2 py-1 text-xs font-medium">{customer.status ?? "진행중"}</div>
-              <div className="mt-2">카카오 채널: {progress}</div>
-            </InfoGroup>
+    <details className="group min-w-0 overflow-hidden rounded-md border bg-background">
+      <summary className="grid cursor-pointer list-none gap-3 p-4 outline-none transition-colors hover:bg-muted/30 focus-visible:ring-2 focus-visible:ring-ring sm:grid-cols-[minmax(0,1fr)_auto] [&::-webkit-details-marker]:hidden">
+        <div className="min-w-0 space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="min-w-0 break-words text-base font-semibold">{customer.name}</h3>
+            {deleteRequest ? (
+              <span className="shrink-0 rounded-md bg-destructive/10 px-2 py-1 text-xs font-medium text-destructive">
+                삭제 요청
+              </span>
+            ) : null}
           </div>
-
-          <div className="grid gap-3 xl:grid-cols-2">
-            <div className="rounded-md border bg-card p-3">
-              <div className="mb-2 flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                <KeyRound className="h-3.5 w-3.5" />
-                관리자 열람 계정
-              </div>
-              <Credential label="Kakao Biz ID" value={customer.kakao_business_id} />
-              <Credential label="Kakao Biz PW" value={customer.kakao_business_password} />
-              <Credential label="모아솔루션 ID" value={customer.moa_solution_id} />
-              <Credential label="모아솔루션 PW" value={customer.moa_solution_password} />
-            </div>
-            <div className="rounded-md border bg-card p-3">
-              <div className="mb-2 text-xs font-semibold text-muted-foreground">청구 상태</div>
-              <BillingLine label="태블릿" done={Boolean(customer.tablet_billed)} />
-              <BillingLine label="QR" done={Boolean(customer.qr_billed)} />
-              <BillingLine label="서비스" done={Boolean(customer.service_fee_billed)} />
-            </div>
+          <div className="grid gap-2 text-sm sm:grid-cols-2 xl:grid-cols-4">
+            <SummaryFact label="연락처" value={customer.phone ?? "-"} />
+            <SummaryFact label="진행" value={customer.status ?? "진행중"} />
+            <SummaryFact label="카카오 채널" value={progress} />
+            <SummaryFact label="옵션/발송" value={`${formatOptions(customer).join(" + ")} · ${formatTabletShipping(customer)}`} />
           </div>
         </div>
+        <div className="flex items-center justify-between gap-2 text-sm font-medium text-muted-foreground sm:justify-end">
+          <span>상세</span>
+          <ChevronDown className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180" />
+        </div>
+      </summary>
 
-        <AdminCustomerForm customer={customer} deleteRequest={deleteRequest} profileRole={profileRole} />
+      <div className="border-t p-4">
+        <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_280px]">
+          <div className="min-w-0 space-y-4">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              <InfoGroup label="주소">
+                <div className="flex items-start gap-1">
+                  <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                  <span>{customer.address ?? "주소 미입력"}</span>
+                </div>
+              </InfoGroup>
+              <InfoGroup label="사업자/제출">
+                <div>사업자번호 {customer.business_no ?? "-"}</div>
+                <div className="mt-1 flex items-center gap-1">
+                  <CalendarClock className="h-3.5 w-3.5 shrink-0" />
+                  제출일 {formatDateTime(customer.created_at)}
+                </div>
+              </InfoGroup>
+              <InfoGroup label="상태">
+                <div>선택 옵션: {formatOptions(customer).join(" + ")}</div>
+                <div>기기 발송: {formatTabletShipping(customer)}</div>
+                <div>카카오 채널: {progress}</div>
+                {deleteRequest?.reason ? <div className="mt-1 break-words">삭제 사유: {deleteRequest.reason}</div> : null}
+              </InfoGroup>
+            </div>
+
+            <div className="grid gap-3 xl:grid-cols-2">
+              <div className="rounded-md border bg-card p-3">
+                <div className="mb-2 flex items-center gap-1 text-xs font-semibold text-muted-foreground">
+                  <KeyRound className="h-3.5 w-3.5" />
+                  관리자 열람 계정
+                </div>
+                <Credential label="Kakao Biz ID" value={customer.kakao_business_id} />
+                <Credential label="Kakao Biz PW" value={customer.kakao_business_password} />
+                <Credential label="모아솔루션 ID" value={customer.moa_solution_id} />
+                <Credential label="모아솔루션 PW" value={customer.moa_solution_password} />
+              </div>
+              <div className="rounded-md border bg-card p-3">
+                <div className="mb-2 text-xs font-semibold text-muted-foreground">청구 상태</div>
+                <BillingLine label="태블릿" done={Boolean(customer.tablet_billed)} />
+                <BillingLine label="QR" done={Boolean(customer.qr_billed)} />
+                <BillingLine label="서비스" done={Boolean(customer.service_fee_billed)} />
+              </div>
+            </div>
+          </div>
+
+          <AdminCustomerForm customer={customer} deleteRequest={deleteRequest} profileRole={profileRole} />
+        </div>
       </div>
-    </article>
+    </details>
   );
 }
 
@@ -426,6 +434,15 @@ function InfoGroup({ label, children }: { label: string; children: ReactNode }) 
     <div className="min-w-0 text-sm">
       <div className="mb-1 text-xs font-semibold text-muted-foreground">{label}</div>
       <div className="space-y-1 break-words text-muted-foreground">{children}</div>
+    </div>
+  );
+}
+
+function SummaryFact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-md bg-muted/60 px-3 py-2">
+      <div className="text-xs font-medium text-muted-foreground">{label}</div>
+      <div className="mt-1 truncate text-sm text-foreground">{value}</div>
     </div>
   );
 }
