@@ -1,0 +1,19 @@
+runConfig:
+  minInstances: 0
+  maxInstances: 10
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+env:
+  - variable: NEXT_PUBLIC_SUPABASE_URL
+    value: https://wpowwsmqwryvofcjaegs.supabase.co
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_SUPABASE_ANON_KEY
+    value: sb_publishable_kbTmQOTFBXTUC_RpbALgCg_XUypNqNT
+    availability:
+      - BUILD
+      - RUNTIME
